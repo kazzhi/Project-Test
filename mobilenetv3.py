@@ -8,11 +8,14 @@ import torch.optim as optim
 
 
 # Load MobileNetV3-Small pretrained on ImageNet
-output = 10
+# Load face-mask detection dataset
+# Split into training and test, 80:20
+# Validation test
+integer_map = {'with_mask': 0, 'without_mask': 1, 'mask_worn_incorrectly': 2}
 datapath = ''
 
 model = models.mobilenet_v3_small(pretrained=True)
-model.classifier[3] = nn.Linear(in_features=1280, out_features=output)
+model.classifier[3] = nn.Linear(in_features=1280, out_features=3)
 
 transform = transforms.Compose([
     transforms.Resize(224),
