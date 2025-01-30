@@ -13,22 +13,33 @@ from torch.utils.data import DataLoader, random_split
 # Load face-mask detection dataset
 # Split into training and test, 80:20
 # Validation test
-datapath = ''
+# Relative path: data/asl_alphabet_train/asl_alphabet_train
+# Absolute path: /home/oefish/026prj/Project-Test/data/asl_alphabet_train/asl_alphabet_train
+datapath = 'data/asl_alphabet_train/asl_alphabet_train' 
+#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda")
 
 model = models.mobilenet_v3_small(pretrained=True)
-model.classifier[3] = nn.Linear(in_features=1280, out_features=29)
+model.to(device)
+
+model.classifier[3] = nn.Linear(in_features=1024, out_features=29)
+model.classifier[3].to(device)
 
 transform = transforms.Compose([
-    transforms.Resize(224),
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
 dataset = datasets.ImageFolder(root=datapath, transform=transform)
 
+image, label = dataset[0]  # Access the first image
+print("Image shape after transforms:", image.shape)
+
 # Split dataset into train (80%) and validation (20%)
 train_size = int(0.8 * len(dataset))
 val_size = len(dataset) - train_size
+print('train_size: ', train_size, ', val_size: ', val_size)
 train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
 # Create DataLoaders
@@ -40,13 +51,13 @@ val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-num_epochs = 100
+num_epochs = 3
 best_val_loss = float("inf")
 patience = 10
 early_stop_counter = 0
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
+
+
 
 for epoch in range(num_epochs):
     model.train()
@@ -55,7 +66,9 @@ for epoch in range(num_epochs):
     total = 0
 
     for images, labels in train_loader:
-        images, labels = images.to(device), labels.to(device)
+        images = images.to(device)  # Move images to the correct device (CRUCIAL)
+        labels = labels.to(device)
+        
         optimizer.zero_grad()
         outputs = model(images)
         loss = criterion(outputs, labels)
@@ -102,8 +115,8 @@ for epoch in range(num_epochs):
             print("Early stopping triggered")
             break
 
-model = torch.quantization.quantize_dynamic(
-    model, {nn.Linear}, dtype=torch.qint8
-)
+# model = torch.quantization.quantize_dynamic(
+#     model, {nn.Linear}, dtype=torch.qint8
+# )
 
-torch.save(model.state_dict(), "quantized_model.pth")
+torch.save(model.state_dict(), "trained_model.pth")
