@@ -76,6 +76,10 @@ test_dataset = tf.keras.preprocessing.image_dataset_from_directory(
 def build_lightweight_model(input_shape=(IMG_SIZE, IMG_SIZE, 1), num_classes=NUM_CLASSES):
     """Builds a lightweight CNN model for image classification."""
     model = keras.Sequential([
+        layers.Conv2D(8, (3, 3), activation="relu", padding="same", input_shape=input_shape),
+        layers.DepthwiseConv2D((3, 3), activation="relu", padding="same", depth_multiplier=1),
+        layers.MaxPooling2D((2, 2)),
+
         layers.Conv2D(16, (3, 3), activation="relu", padding="same", input_shape=input_shape),
         layers.DepthwiseConv2D((3, 3), activation="relu", padding="same", depth_multiplier=1),
         layers.MaxPooling2D((2, 2)),
