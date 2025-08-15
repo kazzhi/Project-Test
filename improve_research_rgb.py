@@ -29,7 +29,7 @@ def create_model(input_shape, num_classes):
         layers.Conv2D(32, (3, 3), activation="relu", padding="same", input_shape=input_shape),
         layers.BatchNormalization(),
         layers.Conv2D(32, (3, 3), activation="relu", padding="same"),
-        layers.BatchNormalization(),
+        #layers.BatchNormalization(),
         layers.MaxPooling2D((2, 2)),
         layers.Dropout(0.25),
 
@@ -37,7 +37,7 @@ def create_model(input_shape, num_classes):
         layers.Conv2D(64, (3, 3), activation="relu", padding="same"),
         layers.BatchNormalization(),
         layers.Conv2D(64, (3, 3), activation="relu", padding="same"),
-        layers.BatchNormalization(),
+        #layers.BatchNormalization(),
         layers.MaxPooling2D((2, 2)),
         layers.Dropout(0.3),
 
@@ -145,6 +145,8 @@ def train_and_evaluate(dataset_name):
     # 6. Save the Model
     model_filename = f'saved_models/{dataset_name}_model.keras'
     model.save(model_filename)
+    model_filename = f'saved_models/{dataset_name}_model.h5'
+    model.save(model_filename)
     print(f"Model saved to {model_filename}")
 
     # 7. Generate and Display Confusion Matrix
@@ -160,10 +162,10 @@ def train_and_evaluate(dataset_name):
 if __name__ == '__main__':
 
     # Process the MNIST Digits dataset
-    train_and_evaluate('mnist')
+    # train_and_evaluate('mnist')
     
-    # Process the Fashion-MNIST dataset
-    train_and_evaluate('fashion_mnist')
+    # # Process the Fashion-MNIST dataset
+    # train_and_evaluate('fashion_mnist')
     
     # Process the CIFAR-10 dataset
     train_and_evaluate('cifar10')
